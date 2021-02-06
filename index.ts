@@ -4,6 +4,15 @@ import objectHash from "object-hash";
 import puppeteer, { Browser } from "puppeteer";
 import getConfig, { getUrls, getZipFromUrl } from "./config";
 
+require('dotenv').config()
+
+const accountSid = process.env.ACCOUNT_SID; 
+const authToken = process.env.AUTH_TOKEN; 
+const messageSid = process.env.MESSAGE_SID;
+const number = process.env.MESSAGE_SID;
+
+const client = require('twilio')(accountSid, authToken); 
+
 class Impfbot {
   private config = getConfig();
   private browser?: Browser;
@@ -14,6 +23,12 @@ class Impfbot {
 
   public boot = async () => {
     console.log("Booting 116117bot");
+
+    if (number) {
+      console.log("Notfies via twilio")
+    } else {
+      console.log("Notfies via pushover")
+    }
 
     const app = express();
     app.get("/", (req, res) => res.send());
@@ -147,6 +162,24 @@ class Impfbot {
     }
   };
 
+  private alertSms = async (phoneNumber: string, message: string, priority: number) => {
+    if (this.config.pushover.token && this.config.pushover.user) {
+      try {
+        client.messages 
+        .create({         
+           to: phoneNumber,
+           body: message + " - Priority: " + priority,
+           messagingServiceSid: messageSid
+         })
+        .then((message: any) => console.log(message.sid)) 
+        .done();
+      } catch (error) {
+        console.error("Error when pushing to pushover, will retry.");
+        console.error(error);
+      }
+    }
+  };
+
   private announceNewResults = (
     hash: string,
     url: string,
@@ -174,21 +207,40 @@ class Impfbot {
         (this.lastAppointmentsAvailable[url] ?? 0) === 0 &&
         appointmentsAvailable > 0
       ) {
-        this.alertPushover(
-          `There are ${appointmentsAvailable} available appointment(s) for ${getZipFromUrl(
-            url
-          )}!`,
-          1
-        );
+        
+        if (number) {
+          this.alertSms(
+            number,
+            `There are ${appointmentsAvailable} available appointment(s) for ${getZipFromUrl(
+              url
+            )}!`,
+            1
+          );
+        } else {
+          this.alertPushover(
+            `There are ${appointmentsAvailable} available appointment(s) for ${getZipFromUrl(
+              url
+            )}!`,
+            1
+          );
+        }
       }
       if (
         (this.lastAppointmentsAvailable[url] ?? 0) > 0 &&
         appointmentsAvailable === 0
       ) {
-        this.alertPushover(
-          `There are no more available appointments for ${getZipFromUrl(url)}.`,
-          -1
-        );
+        if (number) {
+          this.alertSms(
+            number,
+            `There are no more available appointments for ${getZipFromUrl(url)}.`,
+            -1
+          );
+        } else {
+          this.alertPushover(
+            `There are no more available appointments for ${getZipFromUrl(url)}.`,
+            -1
+          );
+        }
       }
     }
   };
@@ -205,3 +257,4 @@ function awaitTimeout(ms: number) {
 
 const impfbot = new Impfbot();
 impfbot.boot();
+

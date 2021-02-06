@@ -35,7 +35,10 @@ The [116117 Impfterminservice](https://www.impfterminservice.de) provides COVID-
 | `LOG_HTML`             |          | `false` | Set this to `true` to log raw HTML from polls (if it has changed).                                                                                                                                                                                                            |
 | `HEADLESS`             |          | `false` | Set this to `true` to run Puppeteer in headless mode.                                                                                                                                                                                                                         |
 | `PORT`                 |          | `3000`  | The port 116117bot will run on. It is not actively used at this point, but should still be available.                                                                                                                                                                         |
-
+| `NUMBER`                 |          | `3000`  | The number 116117bot will run use to send the notifications via Twilio. If not provided it the Bot will use pushover                                                                                                                                                                         |
+| `ACCOUNT_SID`                 |          | `3000`  |Twilios Account SID                                                                                                                                                                         |
+| `AUTH_TOKEN`                 |          | `3000`  |Twilios Account Auth Token SID                                                                                                                                                                         |
+| `MESSAGE_SID`                 |          | `3000`  |Twilios Notifier Message SID                                                                                                                                                                         |
 ## Installing dependencies
 
 ```sh
