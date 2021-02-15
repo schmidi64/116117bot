@@ -7,8 +7,8 @@ const getConfig = () => {
       user: process.env.PUSHOVER_USER,
     },
     timeout: {
-      regular: parseEnvInt("TIMEOUT_REGULAR", 300),
-      error: parseEnvInt("TIMEOUT_ERROR", 300),
+      regular: parseEnvInt("TIMEOUT_REGULAR", 60),
+      error: parseEnvInt("TIMEOUT_ERROR", 60),
     },
     chromiumExecutablePath: process.env.CHROMIUM_EXECUTABLE_PATH,
     noPuppeteerSandbox: !!process.env.NO_PUPPETEER_SANDBOX,
